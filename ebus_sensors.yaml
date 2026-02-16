@@ -1,0 +1,131 @@
+sensors:
+  outdoor_temp:
+    name: Outdoor Temperature
+    unit: °C
+    device_class: temperature
+    numeric: true
+    min: -40
+    max: 50
+    ebus_find_tag: BP021
+    ebus_read_tag: TempOutdoor
+    max_age: 300
+    
+  room_temp: 
+    name: Room Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: -40
+    max: 50
+    ebus_find_tag: BP022
+    ebus_read_tag: TempRoom    
+    max_age: 300
+    
+  boil_temp: 
+    name: Boiler Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 90
+    ebus_find_tag: FQ004
+    ebus_read_tag: TempBoiler    
+    max_age: 180
+    
+  boil2_temp: 
+    name: Boiler Sec Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 90
+    ebus_find_tag: FQ094
+    ebus_read_tag: TempBoiler2    
+    max_age: 180
+    
+  return_temp: 
+    name: Return Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 90
+    ebus_find_tag: FQ006
+    ebus_read_tag: TempReturn    
+    max_age: 180
+  
+  floor_temp: 
+    name: Floor Loop Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 50
+    ebus_find_tag: FS102
+    ebus_read_tag: TempFloor    
+    max_age: 180
+  
+  dhw_temp: 
+    name: DHW Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 80
+    ebus_find_tag: FQ005
+    ebus_read_tag: TempDhw    
+    max_age: 180
+    
+  el_booster_status: 
+    name: Electric Booster Status
+    numeric: False
+    ebus_find_tag: FQ102
+    ebus_read_tag: ElBoosterStatus    
+    max_age: 300
+    decoder: check_booster_status
+    
+  power_el: 
+    name: Electric Power Consumption
+    unit: kW
+    device_class: power
+    numeric: True
+    min: 0
+    max: 30
+    ebus_find_tag: FQ099
+    ebus_read_tag: PowerEl    
+    max_age: 180
+    decoder: correct_el_power 
+    
+  power_th: 
+    name: Thermal Power Production
+    unit: kW
+    device_class: power
+    numeric: True
+    min: -40
+    max: 50
+    ebus_find_tag: FQ097
+    ebus_read_tag: PowerTh    
+    max_age: 180
+    decoder: correct_th_power 
+    
+  fha_mode: 
+    name: FHA Mode
+    numeric: False
+    ebus_find_tag: FQ100
+    ebus_read_tag: FHA_Mode    
+    max_age: 180
+    
+  fha_status: 
+    name: FHA Status
+    numeric: False
+    ebus_find_tag: FQ101
+    ebus_read_tag: FHA_Status    
+    max_age: 180
+
+  fan_speed:
+    name: Fan Speed
+    numeric: True
+    ebus_find_tag: FQ050
+    unit: Rpm
+    min: 0
+    max: 2000

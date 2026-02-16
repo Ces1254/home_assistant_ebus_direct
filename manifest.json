@@ -1,0 +1,11 @@
+{
+  "domain": "ebus_direct",
+  "name": "eBus Direct",
+  "version": "1.0.0",
+  "requirements": [],
+  "documentation": "https://example.invalid",
+  "codeowners": ["clig1954"],
+  "config_flow": true,
+  "iot_class": "local_polling"
+}
+
