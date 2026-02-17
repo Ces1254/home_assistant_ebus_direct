@@ -34,7 +34,7 @@ The integration was developed with the following priorities.
     Operational changes such as:    
     * switching the system on/off
     * changing schedules
-    * modifying comfort settings
+    * modifying comfort settings  
     are usually better handled through the vendor’s official app or controller, which:
     * knows system constraints
     * enforces safe operating limits
@@ -151,7 +151,8 @@ scripts/main.py
 
 ### Running the test script
 
-From the project root directory:
+First edit main.py line 19 (EBUSD_HOST) with the IP address that allows you to connect to ebusd.   
+Then, from the project root directory:
 
 ``` bash
 python -m scripts.main
