@@ -134,6 +134,52 @@ sensors:
 ```
 In the example above, it is assumed that FlowTemp is the 'name' of a read message (r) in the ebusd configuration .csv file, while OP010 or OP020 are tags in the 'name' of listen messages (u). Note that for find tags, the name of the message can contain multiple tags for messages that transmit multiparameters values, as in the case of the read commands issued by Wolfnet on a Wolf eBus system. In this case, the different tags are separated in the name by '_' (e.g., OP010_OP011_OP012) and the message will encode values for the parameters which will later be found (with the tag OP010, OP011, or OP012).
 
+## Standalone Testing (without Home Assistant)
+
+The core eBus communication logic is implemented in a Home-Assistant-independent module.
+This allows testing and debugging the connection to ebusd without running Home Assistant.
+
+A simple standalone script is provided in:
+
+scripts/main.py
+
+### Requirements
+
+* Python 3.10 or newer
+
+* Access to a running ebusd instance with TCP enabled
+
+### Running the test script
+
+From the project root directory:
+
+``` bash
+python -m scripts.main
+```
+
+The script connects directly to the configured ebusd instance and performs basic read or find operations.
+It is intended for:
+
+* debugging connection issues
+
+* testing new sensors or message tags
+
+* validating decoding logic
+
+* reverse-engineering unknown parameters
+
+### When to use standalone mode
+
+Standalone testing is useful when:
+
+* Home Assistant is not yet installed
+* you want to debug low-level eBus communication
+* you are developing or testing new decoders
+* you want faster iteration without restarting Home Assistant
+
+This mode does not create Home Assistant entities.
+It is strictly a diagnostic and development tool.
+
 ## Important Notes
 
 - This integration is primarily read-only on eBus.

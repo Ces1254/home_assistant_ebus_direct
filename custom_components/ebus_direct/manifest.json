@@ -3,8 +3,8 @@
   "name": "eBus Direct",
   "version": "1.0.0",
   "requirements": [],
-  "documentation": "https://example.invalid",
-  "codeowners": ["clig1954"],
+  "documentation": "https://github.com/Ces1254/home_assistant_ebus_direct/README.md",
+  "codeowners": ["Ces1254"],
   "config_flow": true,
   "iot_class": "local_polling"
 }

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import asyncio
 import logging
 
@@ -31,7 +31,7 @@ def correct_th_power (value: str):
     if "=" in value:
         value=value.split("=",1)[1].strip()  # if verbose, remove name
     try:
-        val= float (value.split(" ",1)[0].strip())
+        val = float (value.split(" ",1)[0].strip())
         if booster_status and val > 6.5:
             val = val + 1.95 - BOOSTER_NOMINAL_POWER * 0.975
     except:
@@ -41,7 +41,7 @@ def correct_th_power (value: str):
     
 def correct_el_power (value: str):
     if "=" in value:
-        value=value.split("=",1)[1].strip()  # if verbose, remove name
+        value = value.split("=",1)[1].strip()  # if verbose, remove name
     try:
         val= float (value.split(" ",1)[0].strip())
         if booster_status and val > 3.4:
@@ -60,6 +60,29 @@ def check_booster_status (value: str):
 
     return value
 
+def decode_wolf_date(value):
+    """
+    Decodes a 16-bit integer into a Wolf date string (DD.MM.YYYY).
+    Format: Bits 0-4: Day, Bits 5-8: Month, Bits 9-15: Year offset from 2000.
+    """
+
+    if "=" in value:
+        value = value.split("=",1)[1].strip()  # if verbose, remove name
+
+    try:
+        val = int (value.split(" ",1)[0].strip())
+    
+        day = (val & 0x1F) + 1               # Mask first 5 bits
+        month = ((val >> 5) & 0x0F) + 1      # Shift 5, mask 4 bits
+        year = ((val >> 9) & 0x7F) + 2000    # Shift 9, mask 7 bits
+
+        d = date(year, month, day)
+
+    except:
+        return None  # if not a good date, swallow the value
+    
+    return d.strftime("%d/%m/%Y")
+
 
 DECODER_TABLE = {
     "decode_set_floor_loop_temp": decode_set_floor_loop_temp,
@@ -67,6 +90,7 @@ DECODER_TABLE = {
     "correct_th_power": correct_th_power,
     "correct_el_power": correct_el_power,
     "check_booster_status": check_booster_status,
+    "decode_wolf_date": decode_wolf_date,
 }
 
 ###############################################################################

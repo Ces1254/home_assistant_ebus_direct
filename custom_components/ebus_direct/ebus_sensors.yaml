@@ -129,3 +129,9 @@ sensors:
     unit: Rpm
     min: 0
     max: 2000
+
+  hm_start_date:
+    name: Holiday mode start date
+    numeric: False
+    ebus_find_tag: BP011
+    decoder: decode_wolf_date
