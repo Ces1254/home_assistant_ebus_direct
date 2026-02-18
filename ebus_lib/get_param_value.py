@@ -14,13 +14,22 @@ _LOGGER = logging.getLogger(__name__)
 # ###############################################################################
 
 BOOSTER_NOMINAL_POWER = 3
+BOOSTER_ACTUAL_POWER = 2
 booster_status = False
 
 def decode_set_floor_loop_temp (value: str):
+    """
+    Parses the Hex command sent to the mixer module to extract the 
+    floor temperature setting.
+    """
     set_value = int(value[14:16], base = 16)+int(value[12:14], base = 16)/256
     return f"{set_value:.1f}"
 
 def parse_mixer_command (value: str):
+    """
+    Returns only relevant portion of the Hex command sent by the BM-2
+    unit to the mixer module.
+    """
     if " / " in value:  # if hex string, take only the Master part of the message
         value=value.split("/",1)[0].strip()
         if len(value) > 20:
@@ -28,30 +37,42 @@ def parse_mixer_command (value: str):
     return value
 
 def correct_th_power (value: str):    
+    """
+    Corrects the thermal power reported by the FHA unit when the electric
+    booster is in operation. The efficiency is assumed in 95%.
+    """
     if "=" in value:
         value=value.split("=",1)[1].strip()  # if verbose, remove name
     try:
         val = float (value.split(" ",1)[0].strip())
         if booster_status and val > 6.5:
-            val = val + 1.95 - BOOSTER_NOMINAL_POWER * 0.975
+            val = val + (BOOSTER_ACTUAL_POWER - BOOSTER_NOMINAL_POWER) * 0.95
     except:
         return value
     
     return f"{val:.1f}"
     
 def correct_el_power (value: str):
+    """
+    Corrects the electric power reported by the FHA unit when the electric
+    booster is in operation.
+    """
     if "=" in value:
         value = value.split("=",1)[1].strip()  # if verbose, remove name
     try:
         val= float (value.split(" ",1)[0].strip())
         if booster_status and val > 3.4:
-            val = val + 2 - BOOSTER_NOMINAL_POWER
+            val = val + BOOSTER_ACTUAL_POWER - BOOSTER_NOMINAL_POWER
     except:
         return value
     
     return f"{val:.1f}"
 
 def check_booster_status (value: str):
+    """
+    Registers in booster_status whether the electric booster is in operation
+    No change of the message returned, other than stripping the comment.
+    """
     global booster_status
     booster_status = 'Operation' in value
     if "=" in value:
@@ -174,13 +195,13 @@ async def find_by_tag (client, meta):
     else:
         value = values_part # Single-value message
 
+    # Call to a custom decoder, if defined
     decoder = meta.get("decoder")
     if decoder is not None:
         try:
             func = DECODER_TABLE.get(decoder)
             if func:
-                value = func(value)
-                return value
+                return func(value)
         except Exception as err:
             _LOGGER.warning(
                 "Decoder failed for %s: %s",

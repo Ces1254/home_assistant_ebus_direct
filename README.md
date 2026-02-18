@@ -14,8 +14,10 @@ While this works well for standard installations, it introduces:
 * additional infrastructure (MQTT broker)
 * fixed polling logic
 * limited control over message decoding
-* difficulty handling multi-message or freshness-based sensors
-This integration instead connects directly to ebusd over its TCP interface and builds Home Assistant entities from:
+* difficulty handling multi-message or freshness-based sensors  
+
+This integration instead connects directly to ebusd over its TCP interface and builds Home Assistant entities from:  
+
 * find queries
 * read commands
 * custom decoding logic
@@ -35,7 +37,8 @@ The integration was developed with the following priorities.
     * switching the system on/off
     * changing schedules
     * modifying comfort settings  
-    are usually better handled through the vendor’s official app or controller, which:
+    
+    are usually better handled through the vendor’s official app or controller, which:  
     * knows system constraints
     * enforces safe operating limits
     * avoids unintended states
