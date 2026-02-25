@@ -9,6 +9,7 @@ class EbusdClient:
         self._port = port
         self._reader = None
         self._writer = None
+        self._lock = asyncio.Lock()
 
     @property
     def is_connected(self) -> bool:
@@ -51,34 +52,36 @@ class EbusdClient:
     async def clear_buffer(self):
         while not self._reader.at_eof():
             try:
-                # read recursively until the buffer is empty
-                # without waiting for more data to arrive.
                 data = await asyncio.wait_for(self._reader.read(n=1024), timeout=0.01)
-                if not data:
-                    break
+                if not data: break
             except asyncio.TimeoutError:
                 break
             
-    async def command(self, cmd: str) -> str:
-        if not self.is_connected:
-            raise ConnectionError("Not connected to ebusd")
-        
-        try:
-            await self.clear_buffer()
-            self._writer.write((cmd + "\n").encode())
-            await self._writer.drain()
+    async def command(self, cmd: str) -> str:        
+        async with self._lock:
 
-            response = await asyncio.wait_for(
-                self._reader.readline(),
-                timeout=2
-            )
-
-            if not response:
-                raise ConnectionResetError("EOF from ebusd")
-            return response.decode(errors="ignore").strip()
+            if not self.is_connected:
+                raise ConnectionError("Not connected to ebusd")
             
-        
-        except (BrokenPipeError, ConnectionResetError, OSError) as err:
-            await self.close()
-            raise ConnectionError("ebusd connection lost") from err
+            try:
+                await self.clear_buffer()
+
+                self._writer.write((cmd + "\n").encode())
+                await self._writer.drain()
+
+                await asyncio.sleep(0.05)
+
+                response = await asyncio.wait_for(
+                    self._reader.readline(),
+                    timeout=2
+                )
+
+                if not response:
+                    raise ConnectionResetError("EOF from ebusd")
+
+                return response.decode(errors="ignore").strip()                
+            
+            except (BrokenPipeError, ConnectionResetError, OSError) as err:
+                await self.close()
+                raise ConnectionError("ebusd connection lost") from err
         

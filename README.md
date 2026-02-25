@@ -67,7 +67,7 @@ The integration was developed with the following priorities.
     * raw hex message decoding
     * scaling factors
     * offsets
-    * custom decoder logic
+    * custom decoder logic (see '[About custom decoders](https://github.com/Ces1254/home_assistant_ebus_direct/blob/main/ebus_lib/About%20custom%20decoders.md)')
     This makes it suitable for:  
     * reverse-engineered devices
     * non-standard parameters

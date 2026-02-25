@@ -1,3 +1,5 @@
+# file get_param_value.py
+
 from datetime import datetime, date
 import asyncio
 import logging
@@ -7,7 +9,6 @@ import logging
 ###############################################################################
 
 _LOGGER = logging.getLogger(__name__)
-
 
 ###############################################################################
 # Custom decoders 
@@ -115,7 +116,7 @@ DECODER_TABLE = {
 }
 
 ###############################################################################
-# Funtions to get the entities values
+# Funtions to get/set the entities values
 ###############################################################################
 
 async def find_by_tag (client, meta):
@@ -211,14 +212,14 @@ async def find_by_tag (client, meta):
             return None
     
     if "=" in value:
-        value=value.split("=",1)[1].strip()  # if verbose, remove name
-        value= value.split("[",1)[0].strip() # and comments
+        value = value.split("=",1)[1].strip()  # if verbose, remove name
+        value = value.split("[",1)[0].strip()  # and comments
         if " " in value and meta.get("numeric"): value=value.split(" ",1)[0]  # and, if param is numeric, strip unit, if any
     
     return value
 
 async def read_by_tag (client, meta):
-    tag = meta.get("ebus_read_tag")
+    tag = meta.get("ebus_read_tag") or meta.get("ebus_rw_tag")
     if tag is None: return None
     _LOGGER.debug("reading on eBus for %s - %s", meta.get("name"), tag)
     max_age = meta.get("max_age")
@@ -231,14 +232,29 @@ async def read_by_tag (client, meta):
         return None
     return value
 
-
+async def write_by_tag (client, meta, value):
+    tag = meta.get("ebus_rw_tag")
+    circuit = meta.get("circuit")
+    if (tag is None) or (circuit is None): return None
+    _LOGGER.debug("writing on eBus for %s - %s", meta.get("name"), tag)
+    opt = meta.get("ebus_write_cmd","")
+    raw = await client.command(f"w -c {circuit} {tag} '{value}{opt}'")
+    if ("done" in raw) or ("read timeout" in raw):
+        return value
+    
+    _LOGGER.warning("ebusd write error for %s: %s", meta.get("name"), raw)
+    return None
 
 async def get_val_by_tag (client, meta):    
     value = await find_by_tag(client, meta)
     if value is None:
         value = await read_by_tag(client, meta)
         await asyncio.sleep(0.1)
-    if value is not None and meta.get("numeric"): 
+
+    if value is None: 
+        return None
+    
+    if meta.get("numeric"): 
         try:
             f_val = float(value)
         except ValueError:
@@ -252,4 +268,40 @@ async def get_val_by_tag (client, meta):
             _LOGGER.warning("Out-of-range value for %s: %s (expected %s–%s)",
                 meta.get("name"), f_val, vmin, vmax, )
             return None             
+    
     return value
+
+async def set_val_by_tag (client, meta, value):
+    
+    raw = await write_by_tag(client, meta, value)
+
+    if raw is None:
+        return None
+
+    meta["ebus_read_opt"] =" -f"
+    await asyncio.sleep(0.5)
+    raw = await read_by_tag(client, meta)
+    await asyncio.sleep(0.1)
+
+    if raw is not None and (meta.get("numeric") or (meta.get("options","") == "")): 
+        try:
+            read_back = float(raw)
+        except ValueError:
+            _LOGGER.warning("Error updating setpoint %s: %s", meta.get("name"), raw)
+            return None
+
+        step = meta.get("step", 0)
+
+        min = value - step * .4
+        max = value + step * .4
+        if (read_back >= min) and (read_back <= max):
+            return read_back
+        else:
+            _LOGGER.warning("Setpoint %s update failed", meta.get("name"))
+            return None
+    else:
+        if value in raw:
+            return raw
+        else:
+            _LOGGER.warning("Setpoint %s update failed", meta.get("name"))
+            return None

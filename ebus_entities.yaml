@@ -1,0 +1,117 @@
+sensors:
+  outdoor_temp:
+    name: Outdoor Temperature
+    unit: °C
+    device_class: temperature
+    numeric: true
+    min: -40
+    max: 50
+    ebus_find_tag: PM003,PM091,Pa003
+    ebus_read_tag: TempOutdoor
+    max_age: 300
+    
+  room_temp: 
+    name: Room Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: -40
+    max: 50
+    ebus_find_tag: PM087,Pa087
+    ebus_read_tag: TempRoom    
+    max_age: 300
+    
+  boil_temp: 
+    name: Boiler Temperature
+    unit: °C
+    device_class: temperature
+    numeric: True
+    min: 0
+    max: 90
+    ebus_find_tag: PM004,Pa004
+    ebus_read_tag: TempBoiler    
+    max_age: 180
+    
+  fha_mode: 
+    name: FHA Mode
+    numeric: False
+    ebus_find_tag: PM146,Pa146,Pb146   
+    max_age: 180
+
+setpoints:
+  room_correction:
+    name: Room Temperature Correction
+    ebus_rw_tag: SetValCorrection
+    circuit: bm
+    ebus_write_cmd: ;W
+    device_class: temperature
+    numeric: True
+    min: -4
+    max: 4
+    step: 0.5
+    unit: °C
+
+  dhw_setpoint:
+    name: DHW Temperature Setpoint
+    ebus_rw_tag: TempDhwSet
+    circuit: bm
+    ebus_write_cmd: ;W
+    device_class: temperature
+    numeric: True
+    min: 35
+    max: 60
+    step: 0.5
+    unit: °C
+
+selects:
+  dhw_mode:
+    name: DHW Mode
+    ebus_rw_tag: DhwMode
+    circuit: bm
+    ebus_write_cmd: ;W
+    options:
+      - Standby
+      - Auto
+      - Permanent
+    
+  htg_mode:
+    name: Heating Mode
+    ebus_rw_tag: HtgMode
+    circuit: bm
+    ebus_write_cmd: ;W
+    options:
+      - Standby
+      - Auto
+      - Time operation
+
+
+    
+  #####
+  ## here a template descriptor block for an entity:
+  ## my_entity_name:
+  ##   name: HA Friendly Name
+  ##   unit: Unit (possibly consistent with HA SensorDeviceClass)
+  ##   device_class: the HA SensorDeviceClass
+  ##   numeric: True or False if the sensor provides a numeric value
+  ##   min: minimum acceptable value for a numeric sensor
+  ##   max: maximum acceptable value for a numeric sensor
+  ##   ebus_find_tag: name or part of it of the message where the sensor value can be found
+  ##   ebus_read_tag: name of the message to read the sensor value
+  ##   ebus_read_opt: options to the read command, inserted before the read tag
+  ##   ebus_rw_tag: name of the message to read and write the sensor value (only for r/w messages)
+  ##   ebus_write_cmd: fixed fields to be appended in case of write commands (e.g., for BM-2 Wolf controller)
+  ##   max_age: if in a find the value was last updated more than max_age seconds before, the value is discarted
+  ##   decoder: name of a function executed to decode the sensor value from the data returned by the message
+  ##
+  ## Notes: 
+  ##   all fields are optional, except the name
+  ##   when max_age is specified, the option '-vvv' is inserted in the find message
+  ##   in case a sensor value is found in multiple messages, more tags can be specified in ebus_find_tag, separated by a ','
+  ##   the tag should however identify a single message, so that the find command returns a single line as a result.
+  ##   the logic is the following:
+  ##   - if a find_tag is specified, the value is first looked up with the f command on ebusd, for all the messages referred to by the tags.
+  ##   - if no data is found or the data is stale (older than max_age sec) then a r command is executed on ebusd.
+  ##   When the ebus messages have been properly decoded and defined, the read requests may be rare, or completely absent, minimizing
+  ##   the impact on the operation of the eBus itself and the heating system components communicating on it.
+  
+  

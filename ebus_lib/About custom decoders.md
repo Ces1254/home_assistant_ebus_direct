@@ -8,7 +8,7 @@ Note also that different sensors can get the value from the same message by usin
 Examples of common decoders are provided in the module. One is used to decode the unique format of the date used by Wolf BM-2 controller and alike units, a date format not supported by ebusd.  
 ### How to use a custom decoder
 To use a custom decoder you need to:
-* add the code in get_param_value.py or crate it in a separate module and add the directive 'from ... import my_decoder' in get_param_value.py
+* add the code in get_param_value.py or create it in a separate module my_module and add the directive 'from my_module import my_decoder' in get_param_value.py
 * add an entry in DECODER_TABLE  
     "my_decoder": my_decoder,  
 * in ebus_sensors.yaml, add for the relevant sensor block(s)  
