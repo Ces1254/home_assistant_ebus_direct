@@ -1,9 +1,12 @@
 from datetime import timedelta
+import logging
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from ebus_lib.ebusd import EbusdClient
-from ebus_lib.get_param_value import get_val_by_tag, _LOGGER
+from .ebus_lib.ebusd import EbusdClient
+from .ebus_lib.get_param_value import get_val_by_tag
+
+_LOGGER = logging.getLogger(__name__)
 
 class EbusCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, client: EbusdClient, scan_interval: int, sensors):
@@ -52,3 +55,6 @@ class EbusCoordinator(DataUpdateCoordinator):
 
         except Exception as err:
             raise UpdateFailed(f"ebusd update failed: {err}") from err
+
+    async def shutdown(self):
+        await self._client.close()

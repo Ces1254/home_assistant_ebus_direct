@@ -7,7 +7,11 @@ from homeassistant.components.number import (
 from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN
-from ebus_lib.get_param_value import get_val_by_tag, set_val_by_tag, _LOGGER
+from .ebus_lib.get_param_value import get_val_by_tag, set_val_by_tag
+
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 NUMBER_DEVICE_CLASS_MAP = {
     "temperature": NumberDeviceClass.TEMPERATURE,
@@ -19,13 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
     setpoints = data["setpoints"]
     client = data["client"]
-
-    device_info = DeviceInfo(
-        identifiers={(DOMAIN, "wolf")},
-        name="Heat Pump",
-        manufacturer="Wolf",
-        model="FHA via eBus",
-    )
+    device_info = data["device_info"]
 
     entities = [
         WolfEbusSetpoint(client, entry.entry_id, key, meta, device_info)

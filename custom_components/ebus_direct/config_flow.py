@@ -1,6 +1,6 @@
 from homeassistant import config_entries
 import voluptuous as vol
-from ebus_lib.ebusd import EbusdClient
+from .ebus_lib.ebusd import EbusdClient
 
 from .const import (
     DOMAIN,

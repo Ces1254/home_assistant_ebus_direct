@@ -4,14 +4,46 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.entity import DeviceInfo
 
-
+import logging
 from pathlib import Path
 
 from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from .const import CONF_DEVICE_NAME, CONF_DEVICE_MANUFACTURER, CONF_DEVICE_MODEL
-from ebus_lib.ebusd import EbusdClient
+from .ebus_lib.ebusd import EbusdClient
 from .coordinator import EbusCoordinator
-from ebus_lib.config_loader import load_entities_config
+from .ebus_lib.config_loader import load_entities_config
+
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup(hass: HomeAssistant, config):
+    conf = config.get(DOMAIN)
+    if not conf:
+        _LOGGER.error("Entities file not defined in configuration.yaml: please update it.")
+        return False  # not configured
+
+    entities_file = conf.get("entities_file", "ebus_entities.yaml")
+
+    file_path = Path(hass.config.path(entities_file))
+
+    if not file_path.exists():
+        _LOGGER.error("Entities file not found: %s", file_path)
+        _LOGGER.info("Create the file %s and reload the integration", entities_file)
+        return False
+
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN]["entities_file"] = file_path
+
+    async def handle_reload(call: ServiceCall):
+        await hass.config_entries.async_reload(entry.entry_id)
+
+    if not hass.services.has_service(DOMAIN, "reload"):
+        hass.services.async_register(
+            DOMAIN,
+            "reload",
+            handle_reload,
+        )
+
+    return True
 
 PLATFORMS = ["sensor", "number", "select"]
 
@@ -23,8 +55,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     device_manufacturer = entry.data[CONF_DEVICE_MANUFACTURER]
     device_model = entry.data[CONF_DEVICE_MODEL]
 
-    config_path = Path(hass.config.path(DOMAIN))
-    sensors, setpoints, selects = await hass.async_add_executor_job(load_entities_config, config_path)
+    hass.data.setdefault(DOMAIN, {})
+    try:
+        user_defined_path = hass.data[DOMAIN]["entities_file"]
+    except:
+        _LOGGER.error("Entities file not defined in configuration.yaml: please update it.")
+        return False
+
+    sensors, setpoints, selects = await hass.async_add_executor_job(load_entities_config, user_defined_path)
 
     client = EbusdClient(host, port)
     await client.connect()
@@ -39,7 +77,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         model=device_model,
     )
 
-    hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "coordinator": coordinator,
         "sensors": sensors,
@@ -51,15 +88,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    async def handle_reload(call: ServiceCall):
-        await hass.config_entries.async_reload(entry.entry_id)
-
-    hass.services.async_register(
-        DOMAIN,
-        "reload",
-        handle_reload,
-    )
-
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -70,7 +98,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         data = hass.data[DOMAIN].pop(entry.entry_id, None)
         if data:
             coordinator = data["coordinator"]
-            await coordinator._client.close()
+            await coordinator.shutdown()            
 
         # Remove reload service if no entries left
         if not hass.data[DOMAIN]:

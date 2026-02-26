@@ -5,9 +5,7 @@ from homeassistant.components.select import (
 from homeassistant.helpers.entity import DeviceInfo
 
 from .const import DOMAIN
-from ebus_lib.get_param_value import get_val_by_tag, set_val_by_tag, _LOGGER
-
-
+from .ebus_lib.get_param_value import get_val_by_tag, set_val_by_tag
 
 async def async_setup_entry(hass, entry, async_add_entities):
  
@@ -15,13 +13,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
     selects = data["selects"]
     client = data["client"]
-
-    device_info = DeviceInfo(
-        identifiers={(DOMAIN, "wolf")},
-        name="Heat Pump",
-        manufacturer="Wolf",
-        model="FHA via eBus",
-    )
+    device_info = data["device_info"]
 
     entities = [
         WolfEbusSelect(client, entry.entry_id, key, meta, device_info)

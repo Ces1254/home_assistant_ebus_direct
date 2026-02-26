@@ -6,8 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 CONFIG_FILENAME = "ebus_entities.yaml"
 
-
-def load_entities_config(base_path: Path) -> dict:
+def load_entities_config(user_path: Path) -> dict:
     """
     Load eBus sensor configuration.
 
@@ -16,7 +15,6 @@ def load_entities_config(base_path: Path) -> dict:
     2. integration default ebus_sensors.yaml (same folder as this file)
     """
 
-    user_path = base_path / CONFIG_FILENAME
     default_path = Path(__file__).parent.parent / CONFIG_FILENAME
 
     _LOGGER.debug("Declared user configfile path: %s", user_path)
