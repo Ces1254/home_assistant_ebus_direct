@@ -47,9 +47,9 @@ def load_entities_config(user_path: Path) -> dict:
     if selects: set_no += len(selects)
     log_mex = f"Loaded {len(sensors)} eBus sensors"
     if setpoints or selects:
-        log_mex = log_mex + f" and {set_no} eBus setpoints"
+        log_mex = log_mex + f" and {set_no} eBus controls"
     else:
-        log_mex = log_mex + ". No eBus setpoints loaded"
+        log_mex = log_mex + ". No eBus controls loaded"
      
     _LOGGER.info(log_mex)
     return sensors, setpoints, selects
