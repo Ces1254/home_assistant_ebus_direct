@@ -1,7 +1,7 @@
 # Home Assistant eBus Direct Integration
 
 A Home Assistant custom integration that communicates directly with ebusd to monitor heating systems connected to an eBus network, with a focus on operational analysis, logging, and efficiency monitoring.
-This integration is designed primarily for heat pump performance monitoring, not for system control.
+This integration is designed primarily for heat pump performance monitoring.
 
 ## Overview
 
@@ -32,42 +32,31 @@ The integration was developed with the following priorities.
     * tracking energy flows
     * analyzing efficiency (COP, power balance, etc.)
 
-2) It is not intended to control the heating system  
-    Operational changes such as:    
-    * switching the system on/off
-    * changing schedules
-    * modifying comfort settings  
-    
-    are usually better handled through the vendor’s official app or controller, which:  
-    * knows system constraints
-    * enforces safe operating limits
-    * avoids unintended states
-
-3) Direct ebusd communication  
+2) Direct ebusd communication  
     The integration:
     * connects directly to the ebusd TCP interface
     * avoids MQTT entirely
-    * issues find and read commands as needed
+    * issues find and read commands as needed  
     This allows:
     * per-sensor logic
     * dynamic message selection
     * reduced system complexity
 
-4) Freshness-aware sensors  
+3) Freshness-aware sensors  
     Sensors can:
     * prefer recently broadcast messages
     * fall back to direct reads if needed
-    * discard stale data
+    * discard stale data  
     This is useful for:
     * cyclic broadcast values
     * parameters not always present on the bus
 
-5) Custom decoding support  
+4) Custom decoding support  
     The integration supports:
     * raw hex message decoding
     * scaling factors
     * offsets
-    * custom decoder logic (see '[About custom decoders](https://github.com/Ces1254/home_assistant_ebus_direct/blob/main/ebus_lib/About%20custom%20decoders.md)')
+    * custom decoder logic (see '[About custom decoders](https://github.com/Ces1254/home_assistant_ebus_direct/blob/main/ebus_lib/About%20custom%20decoders.md)')  
     This makes it suitable for:  
     * reverse-engineered devices
     * non-standard parameters
@@ -90,7 +79,6 @@ This integration is intended for:
 * Freshness-based message selection
 * Custom decoding of raw messages
 * Flexible sensor definitions
-* Optimized for heat pump performance monitoring
 
 ## Requirements
 
@@ -113,7 +101,7 @@ Add in HA configuration.yaml a block with:
 ebus_direct:
   entities_file: path_to_ebus_entities.yaml
 ```
-where the path is relative to HA /config folder.  
+where the path is relative to HA <config> folder.  
 It is suggested to enable the message logging by adding in configuration.yaml also:
 ```yaml
 logger:
@@ -121,7 +109,7 @@ logger:
   logs:
     custom_components.ebus_direct: info
 ```
-It is suggested that for the first run the `debug` level is selected. Once you are satisfied with your configuration, the level can be changed to `info` to reduce the verbosity of the application. 
+For the first run, selecting `debug` allows verifying the correctness of the entities configuration. Once satisfied, the level can be changed to `info` to reduce the chatting of the application. 
 
 Restart Home Assistant.  
 Add the integration via:  
@@ -131,7 +119,7 @@ and configure through the UI the ebusd IP and system names.
 
 ## Configuration
 
-Sensors are defined through a configuration structure that includes:
+Entities are defined through a configuration structure that includes:
 
 * eBus command or tag
 * unit
@@ -152,7 +140,7 @@ sensors:
     max: 80
     max_age: 180
 ```
-In the example above, it is assumed that FlowTemp is the 'name' of a read message (r) in the ebusd configuration .csv file, while OP010 or OP020 are tags in the 'name' of listen messages (u). Note that for find tags, the name of the message can contain multiple tags for messages that transmit multiparameters values, as in the case of the read commands issued by Wolfnet on a Wolf eBus system. In this case, the different tags are separated in the name by '_' (e.g., OP010_OP011_OP012) and the message will encode values for the parameters which will later be found (with the tag OP010, OP011, or OP012).
+In the example above, it is assumed that FlowTemp is the 'name' of a read message (r) in the ebusd configuration .csv file, while OP010 or OP020 are tags in the 'name' of listen messages (u). Note that for find tags, the name of the message can contain multiple tags for messages that transmit multiparameters values, as in the case of the read commands issued by Wolfnet on a Wolf eBus system. In this case, the different tags are separated in the name by '_' (e.g., OP010_OP011_OP012) and the message will encode values for the parameters which will later be found (with the tag OP010, OP011, or OP012). It is possible to define sensors (read only) or controls (read and write), with controls distinct in numbers (with optional step changes) and selects (with pull-down menu selection).  Refer to the attached `ebus_entities.yaml` configuration for a templete of the entities declarations.   
 
 ## Standalone Testing (without Home Assistant)
 

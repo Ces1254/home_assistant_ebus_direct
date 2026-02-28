@@ -58,7 +58,7 @@ setpoints:
     ebus_write_cmd: ;W
     device_class: temperature
     numeric: True
-    min: 35
+    min: 40
     max: 60
     step: 0.5
     unit: °C
@@ -113,5 +113,9 @@ selects:
   ##   - if no data is found or the data is stale (older than max_age sec) then a r command is executed on ebusd.
   ##   When the ebus messages have been properly decoded and defined, the read requests may be rare, or completely absent, minimizing
   ##   the impact on the operation of the eBus itself and the heating system components communicating on it.
+  ##   Controls do need to read and write messages, cannot just rely on listening the bus traffic. For this reason, only a ebus_rw_tag is defined.
+  ##   The ebus_write_cmd defines a string to be added to the value written. This is required for instance 
+  ##   by the Wolf BM-2 controller, where a fixed 4 byte section is appended to the message to indicate a write command.
+  ##   The ULG value is coded with the letter W. 
   
   
