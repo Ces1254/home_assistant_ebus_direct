@@ -108,9 +108,26 @@ Copy the integration folder into:
     <config>/custom_components/ebus_direct/
 
 Prepare your entities description by editing the yaml configuration file.  
+Add in HA configuration.yaml a block with:  
+```yaml
+ebus_direct:
+  entities_file: path_to_ebus_entities.yaml
+```
+where the path is relative to HA /config folder.  
+It is suggested to enable the message logging by adding in configuration.yaml also:
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.ebus_direct: info
+```
+It is suggested that for the first run the `debug` level is selected. Once you are satisfied with your configuration, the level can be changed to `info` to reduce the verbosity of the application. 
+
 Restart Home Assistant.  
 Add the integration via:  
     Settings → Devices & Services → Add Integration
+    
+and configure through the UI the ebusd IP and system names.  
 
 ## Configuration
 

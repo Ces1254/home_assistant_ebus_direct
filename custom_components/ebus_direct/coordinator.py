@@ -39,6 +39,7 @@ class EbusCoordinator(DataUpdateCoordinator):
             raise ConnectionError("ebusd connection failed") from err
    
     async def _async_update_data(self):
+
         try:
             await self._ensure_connected()
 
@@ -58,3 +59,4 @@ class EbusCoordinator(DataUpdateCoordinator):
 
     async def shutdown(self):
         await self._client.close()
+        self._connected = False
