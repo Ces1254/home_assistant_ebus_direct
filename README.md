@@ -105,7 +105,7 @@ In the example above, it is assumed that FlowTemp is the 'name' of a read messag
 ## Examples:   
 ### Entities exposed to HA
 
-The entities exposed by ebus_direct to HA include sensors, numbers, and selects.
+The entities exposed by ebus_direct to HA include sensors, numbers, and selects. Here below an example of the entities provided by a Wolf FHA heat-pump based system.
 
 ![FHA Mode State History](docs/images/Screen1.png)
 
