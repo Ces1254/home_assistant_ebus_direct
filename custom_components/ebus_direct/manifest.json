@@ -1,13 +1,13 @@
 {
   "domain": "ebus_direct",
   "name": "eBus Direct",
-  "version": "1.0.1",
-  "documentation": "https://github.com/Ces1254/home_assistant_ebus_direct",
-  "issue_tracker": "https://github.com/Ces1254/home_assistant_ebus_direct/issues",
   "codeowners": ["@Ces1254"],
   "config_flow": true,
+  "documentation": "https://github.com/Ces1254/home_assistant_ebus_direct",
   "integration_type": "hub",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Ces1254/home_assistant_ebus_direct/issues",
   "loggers": ["custom_components.ebus_direct"],
-  "requirements": []
+  "requirements": [],
+  "version": "1.0.2"
 }
