@@ -1,84 +1,44 @@
-# Home Assistant eBus Direct Integration
-
-A Home Assistant custom integration that communicates directly with ebusd to monitor heating systems connected to an eBus network, with a focus on operational analysis, logging, and efficiency monitoring.
-This integration is designed primarily for heat pump performance monitoring.
+# Direct eBus Integration for Home Assistant (No MQTT Required)
 
 ## Overview
 
-Most Home Assistant setups use the following architecture:
+ebus_direct connects Home Assistant directly to ebusd over its native TCP interface, eliminating MQTT and enabling advanced, freshness-aware monitoring of eBus heating systems.
+
+This integration is designed for users who want more than basic telemetry — it targets detailed operational analysis of heat pumps and other eBus-based systems.
+
+Instead of the typical:
 
     eBus → ebusd → MQTT → Home Assistant
 
+this integration uses:
 
-While this works well for standard installations, it introduces:
-* additional infrastructure (MQTT broker)
-* fixed polling logic
-* limited control over message decoding
-* difficulty handling multi-message or freshness-based sensors  
+    eBus → ebusd → Home Assistant (direct TCP)
 
-This integration instead connects directly to ebusd over its TCP interface and builds Home Assistant entities from:  
+### Why this matters
 
-* find queries
-* read commands
-* custom decoding logic
+Compared to MQTT-based setups, this approach provides:
 
-## Design Goals
+* No MQTT broker required
+* Per-sensor control over find vs read logic
+* Freshness-aware message selection
+* Custom raw message decoding
+* Reduced infrastructure complexity
+* Better suitability for reverse-engineered or incomplete ebusd definitions
 
-The integration was developed with the following priorities.
-1) Monitoring rather than control  
-    The primary goal is:
-    * logging operational parameters
-    * monitoring system performance
-    * tracking energy flows
-    * analyzing efficiency (COP, power balance, etc.)
+This makes it particularly well suited for:
 
-2) Direct ebusd communication  
-    The integration:
-    * connects directly to the ebusd TCP interface
-    * avoids MQTT entirely
-    * issues find and read commands as needed  
-    This allows:
-    * per-sensor logic
-    * dynamic message selection
-    * reduced system complexity
+* Heat pump performance monitoring
+* COP and efficiency analysis
+* Energy flow tracking
+* Reverse engineering of proprietary parameters
+* Advanced installations without MQTT infrastructure
 
-3) Freshness-aware sensors  
-    Sensors can:
-    * prefer recently broadcast messages
-    * fall back to direct reads if needed
-    * discard stale data  
-    This is useful for:
-    * cyclic broadcast values
-    * parameters not always present on the bus
-
-4) Custom decoding support  
-    The integration supports:
-    * raw hex message decoding
-    * scaling factors
-    * offsets
-    * custom decoder logic (see '[About custom decoders](https://github.com/Ces1254/home_assistant_ebus_direct/blob/main/ebus_lib/About%20custom%20decoders.md)')  
-    This makes it suitable for:  
-    * reverse-engineered devices
-    * non-standard parameters
-    * systems with incomplete ebusd definitions
-
-## Target Use Cases
-
-This integration is intended for:  
-* advanced Home Assistant users
-* heat pump owners interested in performance monitoring
-* users reverse-engineering eBus devices
-* installations without MQTT infrastructure
-* custom or experimental sensor setups
-
-## Key Features
-
-* Direct TCP connection to ebusd
-* No MQTT required
-* Per-sensor find vs read logic
-* Freshness-based message selection
-* Custom decoding of raw messages
-* Flexible sensor definitions
+## Custom decoding support  
+The integration supports custom decoder logic (see '[About custom decoders](https://github.com/Ces1254/home_assistant_ebus_direct/blob/main/ebus_lib/About%20custom%20decoders.md)')  
+This makes it suitable for:  
+* reverse-engineered devices
+* non-standard parameters
+* systems with incomplete ebusd definitions
 
 ## Requirements
 
@@ -101,7 +61,7 @@ Add in HA configuration.yaml a block with:
 ebus_direct:
   entities_file: path_to_ebus_entities.yaml
 ```
-where the path is relative to HA <config> folder.  
+where the path is relative to HA `<config>` folder.  
 It is suggested to enable the message logging by adding in configuration.yaml also:
 ```yaml
 logger:
@@ -142,6 +102,26 @@ sensors:
 ```
 In the example above, it is assumed that FlowTemp is the 'name' of a read message (r) in the ebusd configuration .csv file, while OP010 or OP020 are tags in the 'name' of listen messages (u). Note that for find tags, the name of the message can contain multiple tags for messages that transmit multiparameters values, as in the case of the read commands issued by Wolfnet on a Wolf eBus system. In this case, the different tags are separated in the name by '_' (e.g., OP010_OP011_OP012) and the message will encode values for the parameters which will later be found (with the tag OP010, OP011, or OP012). It is possible to define sensors (read only) or controls (read and write), with controls distinct in numbers (with optional step changes) and selects (with pull-down menu selection).  Refer to the attached `ebus_entities.yaml` configuration for a templete of the entities declarations.   
 
+## Examples:   
+### Entities exposed to HA
+
+The entities exposed by ebus_direct to HA include sensors, numbers, and selects.
+
+![FHA Mode State History](docs/images/Screen1.png)
+
+### Operational State Tracking
+
+State transitions such as Heating, Standby, DHW operation, and Defrost cycles are recorded directly from eBus messages and exposed as native Home Assistant entities.
+
+![FHA Mode State History](docs/images/Screen2.png)
+
+### Performance Monitoring (Grafana)
+
+The integration is optimized for high-resolution logging and long-term performance analysis.
+Below: COP tracking and flow/return temperature analysis via Grafana.
+
+![FHA Mode State History](docs/images/Screen3.png)
+
 ## Standalone Testing (without Home Assistant)
 
 The core eBus communication logic is implemented in a Home-Assistant-independent module.
@@ -154,7 +134,6 @@ scripts/main.py
 ### Requirements
 
 * Python 3.10 or newer
-
 * Access to a running ebusd instance with TCP enabled
 
 ### Running the test script
@@ -170,11 +149,8 @@ The script connects directly to the configured ebusd instance and performs basic
 It is intended for:
 
 * debugging connection issues
-
 * testing new sensors or message tags
-
 * validating decoding logic
-
 * reverse-engineering unknown parameters
 
 ### When to use standalone mode
@@ -186,31 +162,25 @@ Standalone testing is useful when:
 * you are developing or testing new decoders
 * you want faster iteration without restarting Home Assistant
 
-This mode does not create Home Assistant entities.
-It is strictly a diagnostic and development tool.
-
-## Important Notes
-
-- This integration is primarily read-only on eBus.
-- Write operations are intentionally absent.
-- System control should normally be done via the manufacturer’s controller or app.
+This mode does not create Home Assistant entities.  
+It is strictly a diagnostic and development tool.  
 
 ## Status
 
-- Actively developed
-- Tested on systems using ebusd
-- Initial focus on heat pump monitoring
+* Actively developed
+* Tested on systems using ebusd
+* Initial focus on heat pump monitoring
 
 ## Contributing
 
-Contributions are welcome, especially:
+Contributions are welcome, especially:  
 * additional sensor definitions
 * decoders for other eBus devices
 * testing on different systems
 
 ## Disclaimer
 
-This project is:
+This project is:  
 * not affiliated with any heating system manufacturer
 * not an official ebusd component
 * provided as-is, without warranty
