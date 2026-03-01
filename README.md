@@ -1,4 +1,4 @@
-# Direct eBus Integration for Home Assistant (No MQTT Required)
+# Direct eBus Integration for Home Assistant
 
 ## Overview
 
