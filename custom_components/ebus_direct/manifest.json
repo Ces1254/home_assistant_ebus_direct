@@ -1,7 +1,7 @@
 {
   "domain": "ebus_direct",
   "name": "eBus Direct",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/Ces1254/home_assistant_ebus_direct",
   "issue_tracker": "https://github.com/Ces1254/home_assistant_ebus_direct/issues",
   "codeowners": ["@Ces1254"],
