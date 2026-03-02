@@ -20,11 +20,6 @@ from .const import (
     DEFAULT_DEVICE_MODEL,
 )
 
-
-from homeassistant.helpers import config_validation as cv
-
-CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-
 class EbusDirectOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         self.config_entry = config_entry
