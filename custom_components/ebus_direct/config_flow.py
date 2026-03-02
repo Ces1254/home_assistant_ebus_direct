@@ -20,6 +20,7 @@ from .const import (
     DEFAULT_DEVICE_MODEL,
 )
 
+
 from homeassistant.helpers import config_validation as cv
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
