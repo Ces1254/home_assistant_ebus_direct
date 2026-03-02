@@ -4,12 +4,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.exceptions import ConfigEntryNotReady
 
 import logging
 from pathlib import Path
 
 from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-from .const import CONF_DEVICE_NAME, CONF_DEVICE_MANUFACTURER, CONF_DEVICE_MODEL
+from .const import CONF_DEVICE_NAME, CONF_DEVICE_MANUFACTURER, CONF_DEVICE_MODEL, CONF_ENTITIES_FILEPATH, DEFAULT_ENTITIES_FILEPATH
 from .ebus_lib.ebusd import EbusdClient
 from .coordinator import EbusCoordinator
 from .ebus_lib.config_loader import load_entities_config
@@ -19,22 +20,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass: HomeAssistant, config):
-    conf = config.get(DOMAIN)
-    if not conf:
-        _LOGGER.error("Entities file not defined in configuration.yaml: please update it.")
-        return False  # not configured
-
-    entities_file = conf.get("entities_file", "ebus_entities.yaml")
-
-    file_path = Path(hass.config.path(entities_file))
-
-    if not file_path.exists():
-        _LOGGER.error("Entities file not found: %s", file_path)
-        _LOGGER.info("Create the file %s and reload the integration", entities_file)
-        return False
-
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN]["entities_file"] = file_path
 
     async def handle_reload(call: ServiceCall):
         for entry in hass.config_entries.async_entries(DOMAIN):
@@ -57,7 +43,6 @@ async def async_reload_entry(hass, entry):
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
-#    scan_interval = entry.data[CONF_SCAN_INTERVAL]
     scan_interval = entry.options.get(
         CONF_SCAN_INTERVAL,
         entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
@@ -67,14 +52,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     device_manufacturer = entry.data[CONF_DEVICE_MANUFACTURER]
     device_model = entry.data[CONF_DEVICE_MODEL]
 
-    hass.data.setdefault(DOMAIN, {})
-    
-    user_defined_path = hass.data[DOMAIN].get("entities_file")
-    if not user_defined_path:
-        _LOGGER.error("Entities file not defined in configuration.yaml: please update it.")
-        return False
+    entities_path = Path(
+        hass.config.path(
+            entry.options.get(
+                CONF_ENTITIES_FILEPATH,
+                entry.data.get(CONF_ENTITIES_FILEPATH, DEFAULT_ENTITIES_FILEPATH),
+            )
+        )
+    )
 
-    sensors, setpoints, selects = await hass.async_add_executor_job(load_entities_config, user_defined_path)
+    if not entities_path.exists():
+        raise ConfigEntryNotReady(
+            f"Entities file not found: {entities_path}"
+        )
+
+    sensors, setpoints, selects = await hass.async_add_executor_job(
+        load_entities_config,
+        entities_path,
+    )
 
     entry.async_on_unload(
         entry.add_update_listener(async_reload_entry)
@@ -93,6 +88,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         model=device_model,
     )
 
+    hass.data.setdefault(DOMAIN, {})
+    
     hass.data[DOMAIN][entry.entry_id] = {
         "coordinator": coordinator,
         "sensors": sensors,

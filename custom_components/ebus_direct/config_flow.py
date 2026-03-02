@@ -15,9 +15,11 @@ from .const import (
     CONF_DEVICE_NAME,
     CONF_DEVICE_MANUFACTURER,
     CONF_DEVICE_MODEL,
+    CONF_ENTITIES_FILEPATH,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_MANUFACTURER,
     DEFAULT_DEVICE_MODEL,
+    DEFAULT_ENTITIES_FILEPATH,
 )
 
 class EbusDirectOptionsFlow(config_entries.OptionsFlow):
@@ -36,11 +38,24 @@ class EbusDirectOptionsFlow(config_entries.OptionsFlow):
             ),
         )
 
+        current_entities_file = self.config_entry.options.get(
+            CONF_ENTITIES_FILEPATH,
+            self.config_entry.data.get(
+                CONF_ENTITIES_FILEPATH,
+                DEFAULT_ENTITIES_FILEPATH,
+            ),
+        )
+
         schema = vol.Schema({
             vol.Required(
                 CONF_SCAN_INTERVAL,
                 default=current_interval,
             ): int,
+
+            vol.Optional(
+                CONF_ENTITIES_FILEPATH,
+                default=current_entities_file,
+            ): str,
         })
 
         return self.async_show_form(
@@ -78,6 +93,7 @@ class EbusDirectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_DEVICE_NAME, default=DEFAULT_DEVICE_NAME): str,
             vol.Optional(CONF_DEVICE_MANUFACTURER, default=DEFAULT_DEVICE_MANUFACTURER): str,
             vol.Optional(CONF_DEVICE_MODEL, default=DEFAULT_DEVICE_MODEL): str,
+            vol.Optional(CONF_ENTITIES_FILEPATH, default=DEFAULT_ENTITIES_FILEPATH,): str
         })
 
         return self.async_show_form(

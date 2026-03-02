@@ -55,13 +55,9 @@ Copy the integration folder into:
 
     <config>/custom_components/ebus_direct/
 
-Prepare your entities description by editing the yaml configuration file.  
-Add in HA configuration.yaml a block with:  
-```yaml
-ebus_direct:
-  entities_file: path_to_ebus_entities.yaml
-```
-where the path is relative to HA `<config>` folder.  
+Prepare your entities description by editing the yaml configuration file and copying it to a subfolder in your HA `<config>`.  
+(recommended <config>/ebus_direct/ebus_entities.yaml)
+
 It is suggested to enable the message logging by adding in configuration.yaml also:
 ```yaml
 logger:

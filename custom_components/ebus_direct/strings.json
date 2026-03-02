@@ -10,7 +10,8 @@
           "scan_interval": "Scan interval",
           "device_manufacturer": "Device manufacturer",
           "device_name": "Device name",
-          "device_model": "Device model"
+          "device_model": "Device model",
+          "entities_file": "Entities config filepath"
         }
       }
     },
