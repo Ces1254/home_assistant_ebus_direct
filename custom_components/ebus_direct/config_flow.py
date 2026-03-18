@@ -23,8 +23,6 @@ from .const import (
 )
 
 class EbusDirectOptionsFlow(config_entries.OptionsFlow):
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
@@ -52,7 +50,7 @@ class EbusDirectOptionsFlow(config_entries.OptionsFlow):
                 default=current_interval,
             ): int,
 
-            vol.Optional(
+            vol.Required(
                 CONF_ENTITIES_FILEPATH,
                 default=current_entities_file,
             ): str,
@@ -93,7 +91,7 @@ class EbusDirectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_DEVICE_NAME, default=DEFAULT_DEVICE_NAME): str,
             vol.Optional(CONF_DEVICE_MANUFACTURER, default=DEFAULT_DEVICE_MANUFACTURER): str,
             vol.Optional(CONF_DEVICE_MODEL, default=DEFAULT_DEVICE_MODEL): str,
-            vol.Optional(CONF_ENTITIES_FILEPATH, default=DEFAULT_ENTITIES_FILEPATH,): str
+            vol.Required(CONF_ENTITIES_FILEPATH, default=DEFAULT_ENTITIES_FILEPATH,): str
         })
 
         return self.async_show_form(

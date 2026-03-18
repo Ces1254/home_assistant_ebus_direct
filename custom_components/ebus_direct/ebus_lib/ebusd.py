@@ -30,7 +30,7 @@ class EbusdClient:
                 timeout=5,
             )
         except Exception as err:
-            _LOGGER.warning(
+            _LOGGER.debug(
                 "Connection to ebusd failed (%s:%s): %s",
                 self._host,
                 self._port,

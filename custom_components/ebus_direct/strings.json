@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "eBus Direct Setup",
-        "description": "Configure connection to ebusd.",
+        "description": "Configure connection to ebusd.\n\nebusd should be up and running, configured, and reachable through TCP.",
         "data": {
           "host": "Host",
           "port": "Port",
