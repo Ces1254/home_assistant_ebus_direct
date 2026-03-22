@@ -88,7 +88,7 @@ async def adjust_setpoints(client, setpoints, selects):
         for i, (key, meta) in enumerate(items, 1):
             val = await get_val_by_tag(client, meta)
             unit = meta.get("unit", "") or ""
-            if unit is not "": unit = f" {unit}" 
+            if unit != "": unit = f" {unit}" 
             print(f"{i} - {meta['name']} ({val}{unit})")
 
         print("0 - back")
@@ -121,7 +121,7 @@ async def adjust_setpoints(client, setpoints, selects):
 
             step = meta.get("step",0)
             current = float(current)
-            if abs(new_val - current) <= step:
+            if abs(new_val - current) < step:
                 print("nothing to update")
                 continue
         else:
@@ -178,7 +178,7 @@ async def interactive_console(client, sensors, setpoints, selects):
 
 async def main():
     
-    base_path = Path(".")
+    base_path = Path("./ebus_entities.yaml")
     sensors, setpoints, selects = load_entities_config(base_path)
 
     if not sensors:

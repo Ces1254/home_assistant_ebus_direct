@@ -108,10 +108,11 @@ async def find_by_tag (client, meta):
             )
             return None
     
-    if "=" in value:
-        value = value.split("=",1)[1].strip()  # if verbose, remove name
-        value = value.split("[",1)[0].strip()  # and comments
-        if " " in value and meta.get("numeric"): value=value.split(" ",1)[0]  # and, if param is numeric, strip unit, if any
+    if "=" in value:                            # if verbose
+        value = value.split("=",1)[1].strip()   # remove name
+        value = value.split("[",1)[0].strip()   # and comments
+        if " " in value and meta.get("numeric"): # if param is numeric, strip unit, if any
+            value=value.split(" ",1)[0]  
     
     return value
 
@@ -135,8 +136,11 @@ async def write_by_tag (client, meta, value):
     if (tag is None) or (circuit is None): return None
     _LOGGER.debug("writing on eBus for %s - %s", meta.get("name"), tag)
     opt = meta.get("ebus_write_cmd","")
+    # the following line is for patched versions of ebusd where the suffix '!' suppresses the request for answer by the slave
+    # uncomment when using the patched ebusd and comment out the subsequent line
+    # raw = await client.command(f"w -c {circuit} {tag} '!{value}{opt}'")
     raw = await client.command(f"w -c {circuit} {tag} '{value}{opt}'")
-    if ("done" in raw) or ("read timeout" in raw):
+    if any(s in raw for s in ("done", "empty", "read timeout")): # accept 'read timeout' in case the slave does not answer back
         return value
     
     _LOGGER.warning("ebusd write error for %s: %s", meta.get("name"), raw)
