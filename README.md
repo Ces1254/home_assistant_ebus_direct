@@ -50,7 +50,11 @@ Typical setup:
 eBus → ebusd → Home Assistant (this integration)
 
 ## Installation
-Manual installation  
+### Using [HACS](https://hacs.xyz/) (recommended)  
+This integration can be installed using HACS. To do it search for 'Ebus direct' in *Integrations* section.
+
+
+###Manual installation  
 Copy the integration folder into:  
 
     <config>/custom_components/ebus_direct/
@@ -58,7 +62,7 @@ Copy the integration folder into:
 Prepare your entities description by editing the yaml configuration file and copying it to a subfolder in your HA `<config>`.  
 (recommended <config>/ebus_direct/ebus_entities.yaml)
 
-It is suggested to enable the message logging by adding in configuration.yaml also:
+It is advised to enable the message logging by adding in HA *configuration.yaml*:
 ```yaml
 logger:
   default: warning
