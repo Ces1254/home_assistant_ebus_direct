@@ -69,7 +69,7 @@ logger:
   logs:
     custom_components.ebus_direct: info
 ```
-For the first run, selecting `debug` instead than `info` allows verifying the correctness of the entities configuration. Once satisfied, the level can be changed to `info` to reduce the chatting of the application. 
+For the first run, selecting `debug` instead of `info` allows verifying the correctness of the entities configuration. Once satisfied, the level can be changed to `info` to reduce the chatting of the application. 
 
 Restart Home Assistant.  
 Add the integration via:  
