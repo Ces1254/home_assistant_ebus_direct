@@ -54,7 +54,7 @@ eBus → ebusd → Home Assistant (this integration)
 This integration can be installed using HACS. To do it search for 'Ebus direct' in *Integrations* section.
 
 
-###Manual installation  
+### Manual installation  
 Copy the integration folder into:  
 
     <config>/custom_components/ebus_direct/
@@ -69,7 +69,7 @@ logger:
   logs:
     custom_components.ebus_direct: info
 ```
-For the first run, selecting `debug` allows verifying the correctness of the entities configuration. Once satisfied, the level can be changed to `info` to reduce the chatting of the application. 
+For the first run, selecting `debug` instead than `info` allows verifying the correctness of the entities configuration. Once satisfied, the level can be changed to `info` to reduce the chatting of the application. 
 
 Restart Home Assistant.  
 Add the integration via:  
