@@ -22,15 +22,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     data = hass.data[DOMAIN][entry.entry_id]
     setpoints = data["setpoints"]
-    client = data["client"]
-    device_info = data["device_info"]
+    if setpoints:
+        client = data["client"]
+        device_info = data["device_info"]
 
-    entities = [
-        WolfEbusSetpoint(client, entry.entry_id, key, meta, device_info)
-        for key, meta in setpoints.items()
-    ]
+        entities = [
+            WolfEbusSetpoint(client, entry.entry_id, key, meta, device_info)
+            for key, meta in setpoints.items()
+        ]
 
-    async_add_entities(entities)
+        async_add_entities(entities)
 
 class WolfEbusSetpoint(NumberEntity):
 

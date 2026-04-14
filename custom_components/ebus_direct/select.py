@@ -12,15 +12,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     data = hass.data[DOMAIN][entry.entry_id]
     selects = data["selects"]
-    client = data["client"]
-    device_info = data["device_info"]
+    if selects:
+        client = data["client"]
+        device_info = data["device_info"]
 
-    entities = [
-        WolfEbusSelect(client, entry.entry_id, key, meta, device_info)
-        for key, meta in selects.items()
-    ]
+        entities = [
+            WolfEbusSelect(client, entry.entry_id, key, meta, device_info)
+            for key, meta in selects.items()
+        ]
 
-    async_add_entities(entities)
+        async_add_entities(entities)
 
 
 class WolfEbusSelect(SelectEntity):
