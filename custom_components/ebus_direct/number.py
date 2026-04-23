@@ -27,13 +27,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
         device_info = data["device_info"]
 
         entities = [
-            WolfEbusSetpoint(client, entry.entry_id, key, meta, device_info)
+            EbusSetpoint(client, entry.entry_id, key, meta, device_info)
             for key, meta in setpoints.items()
         ]
 
         async_add_entities(entities)
 
-class WolfEbusSetpoint(NumberEntity):
+class EbusSetpoint(NumberEntity):
 
     _attr_has_entity_name = True
     _attr_should_poll = False

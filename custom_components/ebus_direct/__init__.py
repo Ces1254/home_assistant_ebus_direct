@@ -35,7 +35,7 @@ async def async_setup(hass: HomeAssistant, config):
 
     return True
 
-PLATFORMS = ["sensor", "number", "select"]
+PLATFORMS = ["sensor", "number", "select", "switch"]
 
 async def async_reload_entry(hass, entry):
     await hass.config_entries.async_reload(entry.entry_id)
@@ -66,7 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             f"Entities file not found: {entities_path}"
         )
 
-    sensors, setpoints, selects = await hass.async_add_executor_job(
+    sensors, setpoints, selects, switches = await hass.async_add_executor_job(
         load_entities_config,
         entities_path,
     )
@@ -95,6 +95,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "sensors": sensors,
         "setpoints": setpoints,
         "selects": selects,
+        "switches": switches,
         "client": client,
         "device_info":device_info,
     }

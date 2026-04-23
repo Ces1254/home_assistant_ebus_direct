@@ -130,7 +130,7 @@ This allows testing and debugging the connection to ebusd without running Home A
 
 A simple standalone script is provided in:
 
-scripts/main.py
+`scripts/ebd_test.py`
 
 ### Requirements
 
@@ -139,11 +139,11 @@ scripts/main.py
 
 ### Running the test script
 
-First edit main.py line 19 (EBUSD_HOST) with the IP address that allows you to connect to ebusd.   
-Then, from the project root directory:
+First edit edb_test.py line 19 (EBUSD_HOST definition) with the IP address that allows you to connect to ebusd (can be 127.0.0.0 for local_host) and edit the port number if you are not using the defualt one.   
+Then, from the project root directory in terminal use:
 
 ``` bash
-python -m scripts.main
+PYTHONPATH=./custom_components/ebus_direct python3 scripts/ebd_test.py
 ```
 
 The script connects directly to the configured ebusd instance and performs basic read or find operations.

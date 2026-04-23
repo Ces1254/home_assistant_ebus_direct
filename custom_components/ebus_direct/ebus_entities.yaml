@@ -84,6 +84,11 @@ selects:
       - Auto
       - Time operation
 
+switches:
+  el_booster_enabled:
+    name: Electric Booster Enabled
+    ebus_rw_tag: WP095
+    circuit: fha    
 
     
   #####
@@ -104,7 +109,7 @@ selects:
   ##   decoder: name of a function executed to decode the sensor value from the data returned by the message
   ##
   ## Notes: 
-  ##   all fields are optional, except the name
+  ##   all fields are optional, except the name and the circuit for parameters that can be modified (selects, numbers, and switches)
   ##   when max_age is specified, the option '-vvv' is inserted in the find message
   ##   in case a sensor value is found in multiple messages, more tags can be specified in ebus_find_tag, separated by a ','
   ##   the tag should however identify a single message, so that the find command returns a single line as a result.

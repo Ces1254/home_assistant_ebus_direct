@@ -31,25 +31,27 @@ def load_entities_config(user_path: Path) -> dict:
             data = yaml.safe_load(f) or {}
     except Exception as err:
         _LOGGER.error("Failed to load eBus entities config: %s", err)
-        return None, None, None
+        return None, None, None, None
     
     sensors = data.get("sensors")
 
     if not isinstance(sensors, dict):
         _LOGGER.error("Invalid or missing 'sensors' section in %s", path_to_use)
-        return None, None, None
+        return None, None, None, None
 
     setpoints = data.get("setpoints")
     selects = data.get("selects")
+    switches = data.get("switches")
 
     set_no = 0
     if setpoints: set_no = len(setpoints)
     if selects: set_no += len(selects)
+    if switches: set_no += len(switches)
     log_mex = f"Loaded {len(sensors)} eBus sensors"
-    if setpoints or selects:
+    if setpoints or selects or switches:
         log_mex = log_mex + f" and {set_no} eBus controls"
     else:
         log_mex = log_mex + ". No eBus controls loaded"
      
     _LOGGER.info(log_mex)
-    return sensors, setpoints, selects
+    return sensors, setpoints, selects, switches

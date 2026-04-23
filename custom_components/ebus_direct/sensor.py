@@ -18,21 +18,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     data = hass.data[DOMAIN][entry.entry_id]
     sensors = data["sensors"]
-    coordinator = data["coordinator"]
-    device_info = data["device_info"]
+    if sensors:
+        coordinator = data["coordinator"]
+        device_info = data["device_info"]
 
-    entities = [
-        EbusSensor(
-            coordinator,
-            entry.entry_id,
-            key,
-            meta,
-            device_info,
-        )
-        for key, meta in sensors.items()
-    ]
+        entities = [
+            EbusSensor(coordinator, entry.entry_id, key, meta, device_info)
+            for key, meta in sensors.items()
+        ]
 
-    async_add_entities(entities)
+        async_add_entities(entities)
 
 
 class EbusSensor(CoordinatorEntity, SensorEntity):

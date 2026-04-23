@@ -77,13 +77,13 @@ async def poll_loop(client: EbusdClient, sensors: dict):
 # EDIT SETPOINT VALUES
 ###############################################################################
 
-async def adjust_setpoints(client, setpoints, selects):
+async def adjust_setpoints(client, setpoints, selects, switches):
 
     while True:
 
         print("\n=== Setpoints and selections ===")
 
-        items = list(setpoints.items()) + list(selects.items())
+        items = list(setpoints.items()) + list(selects.items()) + list(switches.items())
 
         for i, (key, meta) in enumerate(items, 1):
             val = await get_val_by_tag(client, meta)
@@ -108,9 +108,18 @@ async def adjust_setpoints(client, setpoints, selects):
         current = await get_val_by_tag(client, meta)
         print(f"Current value: {current}")
 
+        if items[idx] in switches.items():
+            choice = await asyncio.to_thread(input, "switch (Y/n)? > ")
+            if choice.lower() == "y":
+                if current.lower() in ("on", "1", "true"): new_val = 0
+                else: new_val = 1
+                read_back = await set_val_by_tag(client, meta, new_val)
+                print(f"New value confirmed: {read_back}")
+            return
+        
         opts = meta.get("options")
 
-        if not opts:
+        if opts is None:
             new_val = await asyncio.to_thread(input, "Enter new value: ")
 
             try:
@@ -149,7 +158,7 @@ async def adjust_setpoints(client, setpoints, selects):
 # Get USER INPUT
 ###############################################################################
 
-async def interactive_console(client, sensors, setpoints, selects):
+async def interactive_console(client, sensors, setpoints, selects, switches):
 
     while True:
 
@@ -164,7 +173,7 @@ async def interactive_console(client, sensors, setpoints, selects):
             await poll_loop(client, sensors)
 
         elif choice == "2":
-            await adjust_setpoints(client, setpoints, selects)
+            await adjust_setpoints(client, setpoints, selects, switches)
 
         elif choice.lower() == "q":
             return
@@ -179,7 +188,7 @@ async def interactive_console(client, sensors, setpoints, selects):
 async def main():
     
     base_path = Path("./ebus_entities.yaml")
-    sensors, setpoints, selects = load_entities_config(base_path)
+    sensors, setpoints, selects, switches = load_entities_config(base_path)
 
     if not sensors:
         sys.exit(1)
@@ -188,7 +197,7 @@ async def main():
 
     try:
         await client.connect()
-        await interactive_console(client, sensors, setpoints, selects)
+        await interactive_console(client, sensors, setpoints, selects, switches)
 
     except Exception as exc:
         _LOGGER.exception("Fatal error: %s", exc)
