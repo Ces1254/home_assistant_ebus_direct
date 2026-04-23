@@ -138,7 +138,7 @@ async def write_by_tag (client, meta, value):
     opt = meta.get("ebus_write_cmd","")
     # the following line is for patched versions of ebusd where the suffix '!' suppresses the request for answer by the slave
     # uncomment when using the patched ebusd and comment out the subsequent line
-    #raw = await client.command(f"w -c {circuit} {tag} '!{value}{opt}'")
+    # raw = await client.command(f"w -c {circuit} {tag} '!{value}{opt}'")
     raw = await client.command(f"w -c {circuit} {tag} '{value}{opt}'")
     if any(s in raw for s in ("done", "empty", "read timeout")): # accept 'read timeout' in case the slave does not answer back
         return value
@@ -179,12 +179,21 @@ async def set_val_by_tag (client, meta, value):
     if raw is None:
         return None
 
-    meta["ebus_read_opt"] =" -f"
+    meta = dict(meta)
+    meta["ebus_read_opt"] = " -f"
     await asyncio.sleep(0.5)
     raw = await read_by_tag(client, meta)
     await asyncio.sleep(0.1)
 
-    if raw is not None and meta.get("numeric","") != "": 
+    if raw is None: 
+        _LOGGER.warning("Setpoint %s update failed", meta.get("name"))
+        return None
+    
+    if not isinstance(raw, str):
+        _LOGGER.warning("Unexpected raw type for %s: %r", meta.get("name"), raw)
+        return None
+
+    if meta.get("numeric","") != "": 
         try:
             read_back = float(raw)
         except ValueError:
@@ -193,14 +202,17 @@ async def set_val_by_tag (client, meta, value):
 
         step = meta.get("step", 0)
 
-        min = value - step * .4
-        max = value + step * .4
-        if (read_back >= min) and (read_back <= max):
+        lower = value - step * .4
+        upper = value + step * .4
+        if (read_back >= lower) and (read_back <= upper):
             return read_back
         else:
             _LOGGER.warning("Setpoint %s update failed", meta.get("name"))
             return None
-    elif meta.get("numeric","") == "" and (value == 1 and raw.lower() in ("on", "1", "true")) or (value == 0 and raw.lower() in ("off", "0", "false")):
+    elif meta.get("numeric","") == "" and (
+        (value == 1 and raw.lower() in ("on", "1", "true")) or 
+        (value == 0 and raw.lower() in ("off", "0", "false"))
+        ):
         return raw
     else:
         if value in raw:
