@@ -138,7 +138,7 @@ async def write_by_tag (client, meta, value):
     opt = meta.get("ebus_write_cmd","")
     # the following line is for patched versions of ebusd where the suffix '!' suppresses the request for answer by the slave
     # uncomment when using the patched ebusd and comment out the subsequent line
-    # raw = await client.command(f"w -c {circuit} {tag} '!{value}{opt}'")
+    #raw = await client.command(f"w -c {circuit} {tag} '!{value}{opt}'")
     raw = await client.command(f"w -c {circuit} {tag} '{value}{opt}'")
     if any(s in raw for s in ("done", "empty", "read timeout")): # accept 'read timeout' in case the slave does not answer back
         return value
@@ -180,7 +180,7 @@ async def set_val_by_tag (client, meta, value):
         return None
 
     meta = dict(meta)
-    meta["ebus_read_opt"] = " -f"
+    meta["ebus_read_opt"] = "-f"
     await asyncio.sleep(0.5)
     raw = await read_by_tag(client, meta)
     await asyncio.sleep(0.1)

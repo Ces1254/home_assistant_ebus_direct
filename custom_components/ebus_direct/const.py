@@ -19,3 +19,5 @@ DEFAULT_PORT = 8888
 DEFAULT_SCAN_INTERVAL = 30   # seconds
 
 DEFAULT_ENTITIES_FILEPATH = "ebus_direct/ebus_entities.yaml"
+
+SLOW_UPDATE_SCAN_INTERVAL = 21600   # seconds = 6 hours

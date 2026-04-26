@@ -76,9 +76,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
     
     client = EbusdClient(host, port)
-    await client.connect()
 
-    coordinator = EbusCoordinator(hass, client, scan_interval, sensors)
+    
+    gen_entities = {
+        **(setpoints or {}),
+        **(selects or {}),
+        **(switches or {}),
+    }
+
+    coordinator = EbusCoordinator(hass, client, scan_interval, sensors, gen_entities)
     await coordinator.async_config_entry_first_refresh()
 
     device_info = DeviceInfo(

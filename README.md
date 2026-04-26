@@ -139,7 +139,7 @@ A simple standalone script is provided in:
 
 ### Running the test script
 
-First edit edb_test.py line 19 (EBUSD_HOST definition) with the IP address that allows you to connect to ebusd (can be 127.0.0.0 for local_host) and edit the port number if you are not using the defualt one.   
+First edit edb_test.py line 19 (EBUSD_HOST definition) with the IP address that allows you to connect to ebusd (can be 127.0.0.0 for local_host) and edit the port number if you are not using the default one.   
 Then, from the project root directory in terminal use:
 
 ``` bash
