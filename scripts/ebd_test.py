@@ -190,7 +190,7 @@ async def main():
     base_path = Path("./ebus_entities.yaml")
     sensors, setpoints, selects, switches = load_entities_config(base_path)
 
-    if not sensors:
+    if sensors is None:
         sys.exit(1)
     
     client = EbusdClient(EBUSD_HOST, EBUSD_PORT)

@@ -54,7 +54,7 @@ setpoints:
   dhw_setpoint:
     name: DHW Temperature Setpoint
     ebus_rw_tag: TempDhwSet
-    ebus_find_tag: PM007
+    ebus_find_tag: PM007, Pa007
     circuit: bm
     ebus_write_cmd: ;W
     device_class: temperature
